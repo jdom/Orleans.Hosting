@@ -16,9 +16,7 @@ namespace Orleans.Hosting
 
         public static void AddStorageProviders(this IServiceCollection services)
         {
-            services.AddSingleton<INamedServiceCollection<IStorageProvider>, NamedServiceCollection<IStorageProvider>>();
-            services.AddFromExisting<IHostedService, INamedServiceCollection<IStorageProvider>>();
-            services.AddSingleton<INamedServiceCollectionBuilder<IStorageProvider>, NamedServiceCollection<IStorageProvider>.Builder>();
+            services.AddNamedHostedService<IStorageProvider>();
         }
     }
 
