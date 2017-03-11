@@ -6,32 +6,42 @@ using System.Linq;
 
 namespace Orleans.Hosting
 {
-    public interface IKeyedServiceCollection<THostedService> : IReadOnlyCollection<KeyValuePair<string, THostedService>>, IHostedService
-        where THostedService : IHostedService
+#region generic version of the Keyed service collection (IMO adds unnecessary cognitive load)
+    public interface IKeyedServiceCollection<TKey, TService> : IReadOnlyCollection<KeyValuePair<TKey, TService>>
     {
-        THostedService GetService(string name);
+        TService GetService(TKey key);
     }
 
-    public interface IKeyedServiceCollectionBuilder<THostedService> : IEnumerable<KeyValuePair<string, Func<THostedService>>>
-        where THostedService : IHostedService
+    public interface IKeyedServiceCollectionBuilder<TKey, TService> : IEnumerable<KeyValuePair<TKey, Func<TService>>>
     {
         IServiceProvider ApplicationServices { get; }
-        void AddService(string name, Func<THostedService> serviceFactory);
+        void AddService(TKey key, Func<TService> serviceFactory);
+    }
+#endregion
+
+    public interface INamedServiceCollection<THostedService> : IKeyedServiceCollection<string, THostedService>, IHostedService
+        where THostedService : IHostedService
+    {
     }
 
-    public class KeyedServiceCollection<THostedService> : IKeyedServiceCollection<THostedService>
+    public interface INamedServiceCollectionBuilder<THostedService> : IKeyedServiceCollectionBuilder<string, THostedService>
+        where THostedService : IHostedService
+    {
+    }
+
+    public class NamedServiceCollection<THostedService> : INamedServiceCollection<THostedService>
         where THostedService : IHostedService
     {
         private readonly Dictionary<string, THostedService> keyedServices = new Dictionary<string, THostedService>();
-        private IKeyedServiceCollectionBuilder<THostedService> builder;
+        private INamedServiceCollectionBuilder<THostedService> builder;
 
-        public KeyedServiceCollection(IKeyedServiceCollectionBuilder<THostedService> builder)
+        public NamedServiceCollection(INamedServiceCollectionBuilder<THostedService> builder)
         {
             this.builder = builder;
         }
         public int Count => keyedServices.Count;
         public IEnumerator<KeyValuePair<string, THostedService>> GetEnumerator() => keyedServices.GetEnumerator();
-        public THostedService GetService(string name) => keyedServices[name];
+        public THostedService GetService(string key) => keyedServices[key];
 
         public Task Start()
         {
@@ -50,20 +60,20 @@ namespace Orleans.Hosting
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public class KeyedServiceCollectionBuilder : IKeyedServiceCollectionBuilder<THostedService>
+        public class Builder : INamedServiceCollectionBuilder<THostedService>
         {
             private readonly Dictionary<string, Func<THostedService>> keyedServiceFactories = new Dictionary<string, Func<THostedService>>();
 
-            public KeyedServiceCollectionBuilder(IServiceProvider serviceProvider)
+            public Builder(IServiceProvider serviceProvider)
             {
                 this.ApplicationServices = serviceProvider;
             }
 
             public IServiceProvider ApplicationServices { get; }
 
-            public void AddService(string name, Func<THostedService> serviceFactory)
+            public void AddService(string key, Func<THostedService> serviceFactory)
             {
-                this.keyedServiceFactories.Add(name, serviceFactory);
+                this.keyedServiceFactories.Add(key, serviceFactory);
             }
 
             public IEnumerator<KeyValuePair<string, Func<THostedService>>> GetEnumerator() => keyedServiceFactories.GetEnumerator();

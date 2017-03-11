@@ -7,30 +7,30 @@ namespace Orleans.Hosting
 {
     public static class BuilderStreamExtensions
     {
-        public static IApplicationBuilder ConfigureStreamProviders(this IApplicationBuilder app, Action<IKeyedServiceCollectionBuilder<IStreamProvider>> configureProviders)
+        public static IApplicationBuilder ConfigureStreamProviders(this IApplicationBuilder app, Action<INamedServiceCollectionBuilder<IStreamProvider>> configureProviders)
         {
-            var streamBuilder = app.ApplicationServices.GetRequiredService<IKeyedServiceCollectionBuilder<IStreamProvider>>();
+            var streamBuilder = app.ApplicationServices.GetRequiredService<INamedServiceCollectionBuilder<IStreamProvider>>();
             configureProviders(streamBuilder);
             return app;
         }
 
         public static void AddStreamProviders(this IServiceCollection services)
         {
-            services.AddSingleton<IKeyedServiceCollection<IStreamProvider>, KeyedServiceCollection<IStreamProvider>>();
-            services.AddFromExisting<IHostedService, IKeyedServiceCollection<IStreamProvider>>();
-            services.AddSingleton<IKeyedServiceCollectionBuilder<IStreamProvider>, KeyedServiceCollection<IStreamProvider>.KeyedServiceCollectionBuilder>();
+            services.AddSingleton<INamedServiceCollection<IStreamProvider>, NamedServiceCollection<IStreamProvider>>();
+            services.AddFromExisting<IHostedService, INamedServiceCollection<IStreamProvider>>();
+            services.AddSingleton<INamedServiceCollectionBuilder<IStreamProvider>, NamedServiceCollection<IStreamProvider>.Builder>();
         }
     }
 
     public static class StreamProvidersBuilderExtensions
     {
-        public static IKeyedServiceCollectionBuilder<IStreamProvider> AddEventHub(this IKeyedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, EventHubStreamOptions options)
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, EventHubStreamOptions options)
         {
             streamBuilder.AddService(name, () => CreateEventHubStreamProvider(streamBuilder.ApplicationServices, name, options));
             return streamBuilder;
         }
 
-        public static IKeyedServiceCollectionBuilder<IStreamProvider> AddEventHub(this IKeyedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, IConfigurationSection configuration)
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, IConfigurationSection configuration)
         {
             return AddEventHub(streamBuilder, name, configuration.Get<EventHubStreamOptions>());
         }
@@ -39,7 +39,7 @@ namespace Orleans.Hosting
         {
             return ActivatorUtilities.CreateInstance<EventHubStreamProvider>(sp, name, options);
         }
-        public static IKeyedServiceCollectionBuilder<IStreamProvider> AddSms(this IKeyedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name)
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddSms(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name)
         {
             // throw new NotImplementedException();
             return streamBuilder;
