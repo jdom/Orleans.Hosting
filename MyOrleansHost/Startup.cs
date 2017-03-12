@@ -65,6 +65,9 @@ namespace MyOrleansHost
                 storageBuilder.AddMemory("Default");
                 storageBuilder.AddAzureBlob("AzureBlob1", Configuration.GetSection("StorageProviders:AzureBlob1"));
                 storageBuilder.AddAzureBlob("AzureBlob2", new AzureBlobStorageOptions { ConnectionString = Configuration.GetConnectionString("AzureStorage"), ContainerName = "myapp", IndentJson = true });
+                storageBuilder.AddAzureBlob2("AzureBlob3")
+                    .Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
+                    .Configure(options => options.ContainerName = "overriden");
             });
 
             app.ConfigureStreamProviders(storageBuilder =>

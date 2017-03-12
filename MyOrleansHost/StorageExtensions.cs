@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Orleans.Hosting
@@ -41,6 +42,19 @@ namespace Orleans.Hosting
         {
             // throw new NotImplementedException();
             return storageBuilder;
+        }
+
+        public static IConfigureOptionsBuilder<AzureBlobStorageOptions> AddAzureBlob2(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name)
+        {
+            // Alternative implementation that allows chaining configuration
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>();
+            storageBuilder.AddService(name, () => CreateAzureBlobStorageProvider2(storageBuilder.ApplicationServices, name, configureOptionsBuilder));
+            return configureOptionsBuilder;
+        }
+
+        private static AzureBlobStorageProvider2 CreateAzureBlobStorageProvider2(IServiceProvider sp, string name, IOptions<AzureBlobStorageOptions> options)
+        {
+            return ActivatorUtilities.CreateInstance<AzureBlobStorageProvider2>(sp, name, options);
         }
     }
 }
