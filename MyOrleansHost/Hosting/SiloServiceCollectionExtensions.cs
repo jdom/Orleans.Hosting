@@ -1,7 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Orleans.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
 
 namespace Orleans.Hosting
 {
@@ -15,6 +14,16 @@ namespace Orleans.Hosting
         {
             // services.AddSingleton<IMembershipProvider, AzureTableMembershipProvider>();
             return services;
+        }
+
+        public static IServiceCollection UseAzureTableMembership(this IServiceCollection services, IConfigurationSection configuration)
+        {
+            return UseAzureTableMembership(services, builder => builder.Configure(configuration));
+        }
+
+        public static IServiceCollection UseAzureTableMembership(this IServiceCollection services, string connectionString)
+        {
+            return UseAzureTableMembership(services, builder => builder.Configure(x => x.ConnectionString = connectionString));
         }
 
         public static IServiceCollection AddTestHooks(this IServiceCollection services) { return services; }

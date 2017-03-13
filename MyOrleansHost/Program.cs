@@ -15,5 +15,14 @@ namespace MyOrleansHost
 
             host.Run();
         }
+
+        //public static void Main(string[] args)
+        //{
+        //    var host = new SiloHostBuilder()
+        //        .UseLegacyConfiguration(new ClusterConfiguration())
+        //        .Build();
+
+        //    host.Run();
+        //}
     }
 }
