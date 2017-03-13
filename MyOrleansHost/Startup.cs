@@ -26,7 +26,7 @@ namespace MyOrleansHost
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            // services.AddOrleans();
+            services.UseAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
             services.AddStorageProviders(); // this is opt-in!
             services.AddStreamProviders();
             services.AddTestHooks();

@@ -1,26 +1,22 @@
-﻿using System.Linq;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Orleans.Hosting;
+using System;
+using System.Linq;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Orleans.Hosting
 {
     //
     // Summary:
     //     Extension methods for setting up MVC services in an Microsoft.Extensions.DependencyInjection.IServiceCollection.
     public static class SiloServiceCollectionExtensions
     {
-        //
-        // Summary:
-        //     Adds MVC services to the specified Microsoft.Extensions.DependencyInjection.IServiceCollection.
-        //
-        // Parameters:
-        //   services:
-        //     The Microsoft.Extensions.DependencyInjection.IServiceCollection to add services
-        //     to.
-        //
-        // Returns:
-        //     An Microsoft.Extensions.DependencyInjection.IMvcBuilder that can be used to further
-        //     configure the MVC services.
-        public static void AddOrleans(this IServiceCollection services) { }
+        // this extension method would be defined in the Azure nuget package
+        public static IServiceCollection UseAzureTableMembership(this IServiceCollection services, Action<IConfigureOptionsBuilder<AzureBlobStorageOptions>> configureOptions)
+        {
+            // services.AddSingleton<IMembershipProvider, AzureTableMembershipProvider>();
+            return services;
+        }
 
-        public static void AddTestHooks(this IServiceCollection services) { }
+        public static IServiceCollection AddTestHooks(this IServiceCollection services) { return services; }
     }
 }
