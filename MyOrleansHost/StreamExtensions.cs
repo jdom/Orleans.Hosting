@@ -16,7 +16,7 @@ namespace Orleans.Hosting
 
         public static void AddStreamProviders(this IServiceCollection services)
         {
-            services.AddNamedHostedService<IStreamProvider>();
+            services.AddNamedHostedServiceCollection<IStreamProvider>();
         }
     }
 

@@ -17,7 +17,7 @@ namespace Orleans.Hosting
 
         public static void AddStorageProviders(this IServiceCollection services)
         {
-            services.AddNamedHostedService<IStorageProvider>();
+            services.AddNamedHostedServiceCollection<IStorageProvider>();
         }
     }
 
@@ -55,6 +55,15 @@ namespace Orleans.Hosting
         private static AzureBlobStorageProvider2 CreateAzureBlobStorageProvider2(IServiceProvider sp, string name, IOptions<AzureBlobStorageOptions> options)
         {
             return ActivatorUtilities.CreateInstance<AzureBlobStorageProvider2>(sp, name, options);
+        }
+
+        public static INamedServiceCollectionBuilder<IStorageProvider> AddAzureBlob3(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name, Action<IConfigureOptionsBuilder<AzureBlobStorageOptions>> configureOptions)
+        {
+            // Alternative implementation that allows chaining configuration
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>();
+            configureOptions(configureOptionsBuilder);
+            storageBuilder.AddService(name, () => CreateAzureBlobStorageProvider2(storageBuilder.ApplicationServices, name, configureOptionsBuilder));
+            return storageBuilder;
         }
     }
 }

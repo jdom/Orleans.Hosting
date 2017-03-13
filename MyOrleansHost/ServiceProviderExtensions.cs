@@ -24,7 +24,7 @@ namespace Orleans.Hosting
     /// </summary>
     internal static class ServiceCollectionExtensions
     {
-        public static void AddNamedHostedService<THostedService>(this IServiceCollection services)
+        public static void AddNamedHostedServiceCollection<THostedService>(this IServiceCollection services)
             where THostedService : IHostedService
         {
             services.AddSingleton<INamedServiceCollection<THostedService>, NamedServiceCollection<THostedService>>();
