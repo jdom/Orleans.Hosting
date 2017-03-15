@@ -77,8 +77,8 @@ namespace MyOrleansHost
                     .Configure(options => options.ContainerName = "overriden");
 
                 // alt version
-                storageBuilder.AddAzureBlob3("AzureBlob4", builder =>
-                    builder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
+                storageBuilder.AddAzureBlob3("AzureBlob4", optionsBuilder =>
+                    optionsBuilder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
                     .Configure(options => options.ContainerName = "overriden AzureBlob4"));
 
                 // can use default options
