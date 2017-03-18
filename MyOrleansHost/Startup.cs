@@ -33,8 +33,9 @@ namespace MyOrleansHost
             // or alternatively provide your own complex configuration
             services.UseAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
 
-            services.AddStorageProviders(); // this is opt-in!
-            services.AddStreamProviders();
+            services.AddNamedHostedServiceCollections();
+            //services.AddStorageProviders(); // this is opt-in!
+            //services.AddStreamProviders();
         }
 
         // optionally will try to match to the most specific environment if Configure{Environment]Services is defined

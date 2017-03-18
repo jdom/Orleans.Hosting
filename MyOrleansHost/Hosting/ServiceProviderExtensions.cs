@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Orleans.Hosting
 {
@@ -34,6 +35,16 @@ namespace Orleans.Hosting
             services.AddFromExisting<IKeyedServiceCollectionBuilder<string, THostedService>, INamedServiceCollectionBuilder<THostedService>>();
         }
 
+        public static void AddNamedHostedServiceCollections(this IServiceCollection services)
+        {
+            Type openGeneric = typeof(IKeyedServiceCollection<,>).GetGenericArguments()[1];
+            services.AddSingleton(typeof(INamedServiceCollection<>), typeof(NamedServiceCollection<>));
+            services.AddFromExisting(typeof(IKeyedServiceCollection<,>).MakeGenericType(typeof(string), openGeneric), typeof(INamedServiceCollection<>));
+            services.AddFromExisting(typeof(IHostedService), typeof(INamedServiceCollection<>));
+            services.AddSingleton(typeof(INamedServiceCollectionBuilder<>), typeof(NamedServiceCollection<>.Builder));
+            services.AddFromExisting(typeof(IKeyedServiceCollectionBuilder<,>).MakeGenericType(typeof(string), openGeneric), typeof(INamedServiceCollectionBuilder<>));
+        }
+
         /// <summary>
         /// Attempts to use an existing registration of <typeparamref name="TImplementation"/> to satisfy the service type <typeparamref name="TService"/>.
         /// </summary>
@@ -48,6 +59,23 @@ namespace Orleans.Hosting
                 var newRegistration = new ServiceDescriptor(
                     typeof(TService),
                     sp => sp.GetRequiredService<TImplementation>(),
+                    registration.Lifetime);
+                services.Add(newRegistration);
+            }
+        }
+
+        public static void AddFromExisting(this IServiceCollection services, Type serviceType, Type implementationType)
+        {
+            // TODO: validate hierarchy
+            var registration = services.FirstOrDefault(service => service.ServiceType == implementationType);
+            if (registration != null)
+            {
+                var typesToResolve = new[] { implementationType.MakeGenericType(typeof(IStorageProvider)), implementationType.MakeGenericType(typeof(IStreamProvider)) };
+                Func<IServiceProvider, object> resolver = sp => new[] { sp.GetRequiredService(typesToResolve[0]), sp.GetRequiredService(typesToResolve[1]) };
+                var newRegistration = new ServiceDescriptor(
+                    serviceType, 
+                    resolver,
+                    //sp => sp.GetRequiredService(implementationType),
                     registration.Lifetime);
                 services.Add(newRegistration);
             }
