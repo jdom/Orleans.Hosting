@@ -67,6 +67,14 @@ namespace Orleans.Hosting
     {
         private List<IConfigureOptions<TOptions>> list = new List<IConfigureOptions<TOptions>>();
 
+        public ConfigureOptionsBuilder(IConfigurationSection defaultOptions)
+        {
+            if (defaultOptions != null)
+            {
+                this.list.Add(new ConfigureFromConfigurationOptions<TOptions>(defaultOptions));
+            }
+        }
+
         //TODO: optimize
         public TOptions Value => new OptionsManager<TOptions>(list).Value;
 

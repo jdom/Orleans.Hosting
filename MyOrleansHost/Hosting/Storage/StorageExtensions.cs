@@ -47,7 +47,7 @@ namespace Orleans.Hosting
         public static IConfigureOptionsBuilder<AzureBlobStorageOptions> AddAzureBlob2(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name)
         {
             // Alternative implementation that allows chaining configuration
-            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>();
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>(storageBuilder.ApplicationServices.GetService<IConfigurationSection>());
             storageBuilder.AddService(name, () => CreateAzureBlobStorageProvider2(storageBuilder.ApplicationServices, name, configureOptionsBuilder));
             return configureOptionsBuilder;
         }
@@ -57,11 +57,11 @@ namespace Orleans.Hosting
             return ActivatorUtilities.CreateInstance<AzureBlobStorageProvider2>(sp, name, options);
         }
 
-        public static INamedServiceCollectionBuilder<IStorageProvider> AddAzureBlob3(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name, Action<IConfigureOptionsBuilder<AzureBlobStorageOptions>> configureOptions)
+        public static INamedServiceCollectionBuilder<IStorageProvider> AddAzureBlob3(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name, Action<IConfigureOptionsBuilder<AzureBlobStorageOptions>> configureOptions = null)
         {
             // Alternative implementation that allows chaining configuration
-            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>();
-            configureOptions(configureOptionsBuilder);
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>(storageBuilder.ApplicationServices.GetService<IConfigurationSection>());
+            configureOptions?.Invoke(configureOptionsBuilder);
             storageBuilder.AddService(name, () => CreateAzureBlobStorageProvider2(storageBuilder.ApplicationServices, name, configureOptionsBuilder));
             return storageBuilder;
         }

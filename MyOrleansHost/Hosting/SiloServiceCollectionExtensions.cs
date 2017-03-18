@@ -9,6 +9,14 @@ namespace Orleans.Hosting
     //     Extension methods for setting up MVC services in an Microsoft.Extensions.DependencyInjection.IServiceCollection.
     public static class SiloServiceCollectionExtensions
     {
+        /// <summary>Configures default options that will be passed to every named service (provider) when configuring them. These options can be overritten.</summary>
+        public static IServiceCollection ConfigureDefaultOptions(this IServiceCollection services, IConfigurationSection defaultOptions)
+        {
+            // see if we want to use a different wrapper interface to avoid collisions (ie: DefaultConfiguration)
+            services.AddSingleton<IConfigurationSection>(defaultOptions);
+            return services;
+        }
+
         // this extension method would be defined in the Azure nuget package
         public static IServiceCollection UseAzureTableMembership(this IServiceCollection services, Action<IConfigureOptionsBuilder<AzureBlobStorageOptions>> configureOptions)
         {
