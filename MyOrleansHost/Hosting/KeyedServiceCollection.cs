@@ -14,10 +14,11 @@ namespace Orleans.Hosting
         TService GetService(TKey key);
     }
 
-    public interface IKeyedServiceCollectionBuilder<TKey, TService> : IEnumerable<KeyValuePair<TKey, Func<TService>>>
+    public interface IKeyedServiceCollectionBuilder<TKey, TService>
     {
         IServiceProvider ApplicationServices { get; }
         void AddService(TKey key, Func<TService> serviceFactory);
+        IEnumerable<KeyValuePair<TKey, TService>> Build();
     }
 #endregion
 
@@ -47,9 +48,9 @@ namespace Orleans.Hosting
 
         public Task Start()
         {
-            foreach (var factory in this.builder)
+            foreach (var service in this.builder.Build())
             {
-                this.keyedServices.Add(factory.Key, factory.Value());
+                this.keyedServices.Add(service.Key, service.Value);
             }
 
             return Task.WhenAll(keyedServices.Values.Select(x => x.Start()));
@@ -78,9 +79,13 @@ namespace Orleans.Hosting
                 this.keyedServiceFactories.Add(key, serviceFactory);
             }
 
-            public IEnumerator<KeyValuePair<string, Func<THostedService>>> GetEnumerator() => keyedServiceFactories.GetEnumerator();
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public IEnumerable<KeyValuePair<string, THostedService>> Build()
+            {
+                foreach(var factory in this.keyedServiceFactories)
+                {
+                    yield return new KeyValuePair<string, THostedService>(factory.Key, factory.Value());
+                }
+            }
         }
     }
 }
