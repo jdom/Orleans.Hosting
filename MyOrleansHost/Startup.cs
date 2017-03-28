@@ -25,13 +25,13 @@ namespace MyOrleansHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureDefaultOptions(Configuration.GetSection("DefaultOptions"));
+            services.ConfigureOrleansDefaultOptions(Configuration.GetSection("DefaultOptions"));
 
-            services.UseAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
+            services.AddAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
             // alternative ways of configuring that can allow for more complex scenarios
-            services.UseAzureTableMembership(Configuration.GetSection("SystemStore"));
+            services.AddAzureTableMembership(Configuration.GetSection("SystemStore"));
             // or alternatively provide your own complex configuration
-            services.UseAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
+            services.AddAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
 
             services.AddStorageProviders(); // this is opt-in!
             services.AddStreamProviders();
