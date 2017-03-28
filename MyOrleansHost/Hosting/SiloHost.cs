@@ -141,7 +141,9 @@ namespace Orleans.Hosting.Internal
             configure(builder);
 
             // TODO better lifecycle
-            var hostedServices = builder.ApplicationServices.GetServices<IHostedService>();
+            var hostedServices = builder.ApplicationServices.GetServices<IHostedService>().ToList();
+            Console.WriteLine("Information about configured hosted services:");
+            Console.WriteLine(string.Join(Environment.NewLine, hostedServices.Select(x => x.ToString())));
             Task.WaitAll(hostedServices.Select(x => x.Start()).ToArray());
 
             // TODO

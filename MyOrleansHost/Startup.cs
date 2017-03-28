@@ -30,7 +30,7 @@ namespace MyOrleansHost
             // can use default options (similar to how it works in the published release with SystemStore).
             services.AddAzureTableMembership();
 
-            // these are other alternate overloads so that end users can integrate more complex configuration scenarios
+            // These are alternate overloads so that end users can integrate more complex configuration scenarios:
             // services.AddAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
             // services.AddAzureTableMembership(Configuration.GetSection("DefaultOptions"));
             // services.AddAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));

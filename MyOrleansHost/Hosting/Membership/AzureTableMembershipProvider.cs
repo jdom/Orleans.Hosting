@@ -6,9 +6,11 @@ namespace Orleans.Hosting.Membership
 {
     public class AzureTableMembershipProvider : IMembershipProvider
     {
+        private string connectionString;
+
         public AzureTableMembershipProvider(IOptions<AzureTableMembershipOptions> options)
         {
-            Console.WriteLine($"{this.GetType().Name}: {options.Value.ConnectionString}");
+            this.connectionString = options.Value.ConnectionString;
         }
 
         public Task Start()
@@ -19,6 +21,11 @@ namespace Orleans.Hosting.Membership
         public Task Stop()
         {
             return Task.FromResult(true);
+        }
+
+        public override string ToString()
+        {
+            return $"{this.GetType().Name}: {this.connectionString}";
         }
     }
 

@@ -10,10 +10,16 @@ namespace Orleans.Hosting
 
     public class EventHubStreamProvider : IStreamProvider
     {
+        private EventHubStreamOptions options;
+        private string name;
+
         public EventHubStreamProvider(string name, EventHubStreamOptions options, IApplicationLifetime appLifetime /* can inject services via DI */)
         {
             // BTW, Jason is working to create a fine-grained application lifecycle abstraction. This is just the one from AspNetCore right now.
             //appLifetime.ApplicationStopped.Register(this.Stop);
+
+            this.name = name;
+            this.options = options;
         }
 
         public Task Start()
@@ -24,6 +30,11 @@ namespace Orleans.Hosting
         public Task Stop()
         {
             return Task.FromResult(true);
+        }
+
+        public override string ToString()
+        {
+            return $"{this.GetType().Name}: {this.name} - {this.options.CheckpointerOptions.DataConnectionString}";
         }
     }
 

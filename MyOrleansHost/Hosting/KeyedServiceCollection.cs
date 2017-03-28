@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using System.Text;
 
 namespace Orleans.Hosting
 {
@@ -48,10 +49,7 @@ namespace Orleans.Hosting
 
         public Task Start()
         {
-            foreach (var service in this.builder.Build())
-            {
-                this.keyedServices.Add(service.Key, service.Value);
-            }
+            EnsureServicesBuilt();
 
             return Task.WhenAll(keyedServices.Values.Select(x => x.Start()));
         }
@@ -59,6 +57,33 @@ namespace Orleans.Hosting
         public Task Stop()
         {
             return Task.WhenAll(keyedServices.Values.Select(x => x.Stop()));
+        }
+
+        public override string ToString()
+        {
+            EnsureServicesBuilt();
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"Named service collection of {typeof(THostedService).Name}:");
+            foreach (var service in this.keyedServices)
+            {
+                sb.AppendLine($"  [{service.Key}]: {service.Value}");
+            }
+            return sb.ToString();
+        }
+
+        private void EnsureServicesBuilt()
+        {
+            var services = this.builder?.Build();
+            if (services != null)
+            {
+                foreach (var service in services)
+                {
+                    this.keyedServices.Add(service.Key, service.Value);
+                }
+            }
+
+            this.builder = null;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
