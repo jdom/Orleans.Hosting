@@ -27,11 +27,13 @@ namespace MyOrleansHost
         {
             services.ConfigureOrleansDefaultOptions(Configuration.GetSection("DefaultOptions"));
 
-            services.AddAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
-            // alternative ways of configuring that can allow for more complex scenarios
-            services.AddAzureTableMembership(Configuration.GetSection("SystemStore"));
-            // or alternatively provide your own complex configuration
-            services.AddAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
+            // can use default options (similar to how it works in the published release with SystemStore).
+            services.AddAzureTableMembership();
+
+            // these are other alternate overloads so that end users can integrate more complex configuration scenarios
+            // services.AddAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
+            // services.AddAzureTableMembership(Configuration.GetSection("DefaultOptions"));
+            // services.AddAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
 
             services.AddStorageProviders(); // this is opt-in!
             services.AddStreamProviders();
@@ -81,7 +83,7 @@ namespace MyOrleansHost
                     optionsBuilder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
                     .Configure(options => options.ContainerName = "overriden AzureBlob4"));
 
-                // can use default options
+                // can use default options (similar to how it works in the published release with SystemStore).
                 storageBuilder.AddAzureBlob3("AzureBlob5");
             });
 
