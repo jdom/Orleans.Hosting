@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Orleans.Hosting;
+using Orleans.Hosting.Membership;
 
 namespace MyOrleansHost
 {
@@ -31,6 +32,7 @@ namespace MyOrleansHost
             services.AddAzureTableMembership();
 
             // These are alternate overloads so that end users can integrate more complex configuration scenarios:
+            // services.AddAzureTableMembership(new AzureTableMembershipOptions { ConnectionString = "set directly without overrides" });
             // services.AddAzureTableMembership(Configuration.GetConnectionString("AzureStorage"));
             // services.AddAzureTableMembership(Configuration.GetSection("DefaultOptions"));
             // services.AddAzureTableMembership(options => options.Configure(x => x.ConnectionString = "xxx"));
@@ -75,8 +77,12 @@ namespace MyOrleansHost
                 storageBuilder.AddAzureBlob("AzureBlobUsingDefaults");
 
                 storageBuilder.AddAzureBlob("AzureBlobOverriding", optionsBuilder =>
-                    optionsBuilder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
-                    .Configure(options => options.ContainerName = "overriden AzureBlob2"));
+                    optionsBuilder
+                        .Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
+                        .Configure(options => options.ContainerName = "overriden AzureBlob2"));
+
+                storageBuilder.AddAzureBlob("AzureBlobMaterializedOptions",
+                    new AzureBlobStorageOptions { ConnectionString = "set directly when configuring, without fallbacks" });
 
                 // Alternative way of configuring (not overloads) that I kept here for opinions but we shouldn't support all
                 storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative1", Configuration.GetSection("StorageProviders:AzureBlob1"));

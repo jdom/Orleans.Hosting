@@ -23,6 +23,15 @@ namespace Orleans.Hosting
             return AddAzureTableMembership(services, (Action<IConfigureOptionsBuilder<AzureTableMembershipOptions>>)null);
         }
 
+        public static IServiceCollection AddAzureTableMembership(this IServiceCollection services, AzureTableMembershipOptions options)
+        {
+            services.AddSingleton<IMembershipProvider, AzureTableMembershipProvider>();
+            services.AddFromExisting<IHostedService, IMembershipProvider>();
+            services.AddSingleton<IOptions<AzureTableMembershipOptions>>(new OptionsWrapper<AzureTableMembershipOptions>(options));
+
+            return services;
+        }
+
         private static IOptions<AzureTableMembershipOptions> AzureTableMembershipOptionsFactory(IServiceProvider sp, Action<IConfigureOptionsBuilder<AzureTableMembershipOptions>> configureOptions)
         {
             var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureTableMembershipOptions>(sp.GetService<IConfigurationSection>());
