@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Orleans.Hosting
@@ -22,25 +23,29 @@ namespace Orleans.Hosting
 
     public static class StreamProvidersBuilderExtensions
     {
-        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, EventHubStreamOptions options)
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> builder, string name, Action<IConfigureOptionsBuilder<EventHubStreamOptions>> configureOptions = null)
         {
-            streamBuilder.AddService(name, () => CreateEventHubStreamProvider(streamBuilder.ApplicationServices, name, options));
-            return streamBuilder;
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<EventHubStreamOptions>(builder.ApplicationServices.GetService<IConfigurationSection>());
+            configureOptions?.Invoke(configureOptionsBuilder);
+            builder.AddService(name, () => CreateEventHubStreamProvider(builder.ApplicationServices, name, configureOptionsBuilder));
+            return builder;
         }
 
-        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name, IConfigurationSection configuration)
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddEventHub(this INamedServiceCollectionBuilder<IStreamProvider> builder, string name, EventHubStreamOptions options)
         {
-            return AddEventHub(streamBuilder, name, configuration.Get<EventHubStreamOptions>());
+            builder.AddService(name, () => CreateEventHubStreamProvider(builder.ApplicationServices, name, new OptionsWrapper<EventHubStreamOptions>(options)));
+            return builder;
         }
 
-        private static EventHubStreamProvider CreateEventHubStreamProvider(IServiceProvider sp, string name, EventHubStreamOptions options)
+        private static EventHubStreamProvider CreateEventHubStreamProvider(IServiceProvider sp, string name, IOptions<EventHubStreamOptions> options)
         {
             return ActivatorUtilities.CreateInstance<EventHubStreamProvider>(sp, name, options);
         }
-        public static INamedServiceCollectionBuilder<IStreamProvider> AddSms(this INamedServiceCollectionBuilder<IStreamProvider> streamBuilder, string name)
+
+        public static INamedServiceCollectionBuilder<IStreamProvider> AddSms(this INamedServiceCollectionBuilder<IStreamProvider> builder, string name)
         {
-            // throw new NotImplementedException();
-            return streamBuilder;
+            // builder.AddService(name, () => CreateEventHubStreamProvider(builder.ApplicationServices, name, new OptionsWrapper<EventHubStreamOptions>(options)));
+            return builder;
         }
     }
 }

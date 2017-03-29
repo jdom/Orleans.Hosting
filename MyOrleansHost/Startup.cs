@@ -94,10 +94,9 @@ namespace MyOrleansHost
                     .Configure(options => options.ContainerName = "overriden");
             });
 
-            app.ConfigureStreamProviders(storageBuilder =>
+            app.ConfigureStreamProviders(streamBuilder =>
             {
-                //storageBuilder.AddSms("Sms", new SimpleMessageOptions { FireAndForget = true });
-                storageBuilder.AddEventHub("EventHub", new EventHubStreamOptions
+                streamBuilder.AddEventHub("EventHub", new EventHubStreamOptions
                 {
                     CacheSizeMb = 100,
                     CheckpointerOptions = new CheckpointerOptions
@@ -106,6 +105,8 @@ namespace MyOrleansHost
                         TableName = "mycheckpoints"
                     }
                 });
+
+                // storageBuilder.AddSms("Sms");
             });
         }
     }
