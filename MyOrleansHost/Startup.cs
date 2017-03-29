@@ -70,21 +70,22 @@ namespace MyOrleansHost
             app.ConfigureStorageProviders(storageBuilder =>
             {
                 storageBuilder.AddMemory("Default");
-                storageBuilder.AddAzureBlob("AzureBlob1", Configuration.GetSection("StorageProviders:AzureBlob1"));
-                storageBuilder.AddAzureBlob("AzureBlob2", new AzureBlobStorageOptions { ConnectionString = Configuration.GetConnectionString("AzureStorage"), ContainerName = "myapp", IndentJson = true });
-
-                // alt version
-                storageBuilder.AddAzureBlob2("AzureBlob3")
-                    .Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
-                    .Configure(options => options.ContainerName = "overriden");
-
-                // alt version
-                storageBuilder.AddAzureBlob3("AzureBlob4", optionsBuilder =>
-                    optionsBuilder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
-                    .Configure(options => options.ContainerName = "overriden AzureBlob4"));
 
                 // can use default options (similar to how it works in the published release with SystemStore).
-                storageBuilder.AddAzureBlob3("AzureBlob5");
+                storageBuilder.AddAzureBlob("AzureBlobUsingDefaults");
+
+                storageBuilder.AddAzureBlob("AzureBlobOverriding", optionsBuilder =>
+                    optionsBuilder.Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
+                    .Configure(options => options.ContainerName = "overriden AzureBlob2"));
+
+                // Alternative way of configuring (not overloads) that I kept here for opinions but we shouldn't support all
+                storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative1", Configuration.GetSection("StorageProviders:AzureBlob1"));
+                storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative2", new AzureBlobStorageOptions { ConnectionString = Configuration.GetConnectionString("AzureStorage"), ContainerName = "myapp", IndentJson = true });
+
+                // Alternative way of configuring (not overloads) that I kept here for opinions but we shouldn't support all
+                storageBuilder.AddAzureBlobFluent("AzureBlobUsingFluentConfig")
+                    .Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
+                    .Configure(options => options.ContainerName = "overriden");
             });
 
             app.ConfigureStreamProviders(storageBuilder =>
