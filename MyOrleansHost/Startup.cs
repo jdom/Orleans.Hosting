@@ -101,10 +101,12 @@ namespace MyOrleansHost
                     CacheSizeMb = 100,
                     CheckpointerOptions = new CheckpointerOptions
                     {
-                        DataConnectionString = Configuration.GetConnectionString("EventHub"),
+                        ConnectionString = Configuration.GetConnectionString("EventHub"),
                         TableName = "mycheckpoints"
                     }
                 });
+
+                streamBuilder.AddEventHub("EventHubConfig1", options => options.Configure(Configuration.GetSection("StreamProviders:EventHubConfig1")));
 
                 // storageBuilder.AddSms("Sms");
             });

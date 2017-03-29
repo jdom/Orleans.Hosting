@@ -35,7 +35,7 @@ namespace Orleans.Hosting
 
         public override string ToString()
         {
-            return $"{this.GetType().Name}: {this.name} - {this.options.CheckpointerOptions.DataConnectionString}";
+            return $"{this.GetType().Name}: {this.name} - {this.options.CheckpointerOptions.ConnectionString}";
         }
     }
 
@@ -62,7 +62,7 @@ namespace Orleans.Hosting
         /// <summary>
         /// Azure table storage data connections string
         /// </summary>
-        public string DataConnectionString { get; set; }
+        public string ConnectionString { get; set; }
 
         /// <summary>
         /// Azure storage table name where the checkpoints will be stored
