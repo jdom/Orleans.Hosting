@@ -18,6 +18,8 @@ using Microsoft.Extensions.ObjectPool;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.AspNetCore.Hosting;
 using Orleans.Hosting.Internal;
+using System.Linq;
+using Microsoft.AspNetCore.Hosting.Server;
 
 namespace Orleans.Hosting
 {
@@ -253,6 +255,12 @@ namespace Orleans.Hosting
             foreach (var configureServices in _configureServicesDelegates)
             {
                 configureServices(services);
+            }
+
+            // Since currently the networking layer is not very extensible, add the default IServer
+            if (!services.Any(s => s.ServiceType == typeof(IServer)))
+            {
+                SiloHostBuilderExtensions.AddOrleansSocketServer(services);
             }
 
             return services;

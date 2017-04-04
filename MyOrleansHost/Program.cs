@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Orleans.Hosting;
+using System.Net;
 
 namespace MyOrleansHost
 {
@@ -8,9 +9,13 @@ namespace MyOrleansHost
     {
         public static void Main(string[] args)
         {
-            // in the future we might configure the TCP server directly here, but since it's not properly abstracted away,
-            // I'm not even attempting it
             var host = new SiloHostBuilder()
+                //.UseNetworkOptions(options => 
+                //{
+                //    // there will be extension methods for common scenarios such as localhost silo, azure cloud services config, etc
+                //    options.Endpoint = new IPEndPoint(NetworkOptions.ResolveIPAddress(), 22222);
+                //    options.ProxyGatewayEndpoint = new IPEndPoint(options.Endpoint.Address, 44444);
+                //})
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .Build();

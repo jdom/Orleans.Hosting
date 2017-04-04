@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +13,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting.Server;
 
 namespace Orleans.Hosting.Internal
 {
@@ -35,6 +34,9 @@ namespace Orleans.Hosting.Internal
 
         // Used for testing only
         internal WebHostOptions Options => _options;
+
+        private IServer Server { get; set; }
+
 
         public SiloHost(
             IServiceCollection appServices,
@@ -74,7 +76,13 @@ namespace Orleans.Hosting.Internal
             }
         }
 
-        public IFeatureCollection ServerFeatures { get; } = new FeatureCollection();
+        public IFeatureCollection ServerFeatures
+        {
+            get
+            {
+                return Server?.Features;
+            }
+        }
 
         public void Initialize()
         {
@@ -94,7 +102,7 @@ namespace Orleans.Hosting.Internal
             //_hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
             //var diagnosticSource = _applicationServices.GetRequiredService<DiagnosticSource>();
             //var httpContextFactory = _applicationServices.GetRequiredService<IHttpContextFactory>();
-            //Server.Start(new HostingApplication(_application, _logger, diagnosticSource, httpContextFactory));
+            Server.Start(new SiloHostingApplication(_application, _logger));
 
             // Fire IApplicationLifetime.Started
             _applicationLifetime?.NotifyStarted();
@@ -127,6 +135,8 @@ namespace Orleans.Hosting.Internal
         private Silo BuildApplication()
         {
             EnsureApplicationServices();
+            EnsureServer();
+
             var builderFactory = _applicationServices.GetRequiredService<IApplicationBuilderFactory>();
             var builder = builderFactory.CreateBuilder(ServerFeatures);
             builder.ApplicationServices = _applicationServices;
@@ -150,7 +160,13 @@ namespace Orleans.Hosting.Internal
             return new Silo();
         }
 
-
+        private void EnsureServer()
+        {
+            if (Server == null)
+            {
+                Server = _applicationServices.GetRequiredService<IServer>();
+            }
+        }
 
         public void Dispose()
         {
@@ -169,6 +185,33 @@ namespace Orleans.Hosting.Internal
             _applicationLifetime?.NotifyStopped();
 
             // HostingEventSource.Log.HostStop();
+        }
+    }
+
+    internal class SiloHostingApplication : IHttpApplication<object>
+    {
+        private Silo _application;
+        private ILogger<SiloHost> _logger;
+
+        public SiloHostingApplication(Silo application, ILogger<SiloHost> logger)
+        {
+            _application = application;
+            _logger = logger;
+        }
+
+        public object CreateContext(IFeatureCollection contextFeatures)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DisposeContext(object context, Exception exception)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ProcessRequestAsync(object context)
+        {
+            throw new NotImplementedException();
         }
     }
 
