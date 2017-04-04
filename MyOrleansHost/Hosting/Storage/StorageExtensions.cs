@@ -48,6 +48,14 @@ namespace Orleans.Hosting
             return storageBuilder;
         }
 
+        public static INamedServiceCollectionBuilder<IStorageProvider> AddAzureBlob(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name, IConfigurationSection configuration)
+        {
+            var configureOptionsBuilder = new ConfigureOptionsBuilder<AzureBlobStorageOptions>(storageBuilder.ApplicationServices.GetService<IConfigurationSection>());
+            configureOptionsBuilder.Configure(configuration);
+            storageBuilder.AddService(name, () => CreateAzureBlobStorageProvider(storageBuilder.ApplicationServices, name, configureOptionsBuilder));
+            return storageBuilder;
+        }
+
         #region alternative (deprecated)
 
         public static IConfigureOptionsBuilder<AzureBlobStorageOptions> AddAzureBlobFluent(this INamedServiceCollectionBuilder<IStorageProvider> storageBuilder, string name)

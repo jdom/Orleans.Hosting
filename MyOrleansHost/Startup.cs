@@ -82,6 +82,8 @@ namespace MyOrleansHost
                         .Configure(options => options.ContainerName = "overriden AzureBlob2")
                         .UseJson());
 
+                storageBuilder.AddAzureBlob("AzureBlobUsingExternal", Configuration.GetSection("StorageProviders:AzureBlob1"));
+
                 storageBuilder.AddAzureBlob("AzureBlobMaterializedOptions",
                     new AzureBlobStorageOptions { ConnectionString = "set directly when configuring, without fallbacks" });
 
