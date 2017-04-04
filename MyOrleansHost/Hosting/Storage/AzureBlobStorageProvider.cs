@@ -38,11 +38,11 @@ namespace Orleans.Hosting
         }
     }
 
-    public class AzureBlobStorageOptions
+    public class AzureBlobStorageOptions : IConfigureSerializer
     {
         public string ConnectionString { get; set; }
-        public bool IndentJson { get; set; }
         public string ContainerName { get; set; }
+        public IExternalSerializer Serializer { get; set; }
     }
 
 #region alternative (deprecated)

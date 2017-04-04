@@ -79,14 +79,15 @@ namespace MyOrleansHost
                 storageBuilder.AddAzureBlob("AzureBlobOverriding", optionsBuilder =>
                     optionsBuilder
                         .Configure(Configuration.GetSection("StorageProviders:AzureBlob1"))
-                        .Configure(options => options.ContainerName = "overriden AzureBlob2"));
+                        .Configure(options => options.ContainerName = "overriden AzureBlob2")
+                        .UseJson());
 
                 storageBuilder.AddAzureBlob("AzureBlobMaterializedOptions",
                     new AzureBlobStorageOptions { ConnectionString = "set directly when configuring, without fallbacks" });
 
                 // Alternative way of configuring (not overloads) that I kept here for opinions but we shouldn't support all
                 storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative1", Configuration.GetSection("StorageProviders:AzureBlob1"));
-                storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative2", new AzureBlobStorageOptions { ConnectionString = Configuration.GetConnectionString("AzureStorage"), ContainerName = "myapp", IndentJson = true });
+                storageBuilder.AddAzureBlobAlternative("AzureBlobAlternative2", new AzureBlobStorageOptions { ConnectionString = Configuration.GetConnectionString("AzureStorage"), ContainerName = "myapp" });
 
                 // Alternative way of configuring (not overloads) that I kept here for opinions but we shouldn't support all
                 storageBuilder.AddAzureBlobFluent("AzureBlobUsingFluentConfig")
