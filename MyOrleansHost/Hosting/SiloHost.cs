@@ -22,7 +22,7 @@ namespace Orleans.Hosting.Internal
         private readonly IServiceCollection _applicationServiceCollection;
         private IStartup _startup;
         private ApplicationLifetime _applicationLifetime;
-        // private HostedServiceExecutor _hostedServiceExecutor;
+        private HostedServiceExecutor _hostedServiceExecutor;
 
         private readonly IServiceProvider _hostingServiceProvider;
         private readonly WebHostOptions _options;
@@ -64,7 +64,7 @@ namespace Orleans.Hosting.Internal
             _applicationServiceCollection = appServices;
             _hostingServiceProvider = hostingServiceProvider;
             _applicationServiceCollection.AddSingleton<IApplicationLifetime, ApplicationLifetime>();
-            // _applicationServiceCollection.AddSingleton<HostedServiceExecutor>();
+            _applicationServiceCollection.AddSingleton<HostedServiceExecutor>();
         }
 
         public IServiceProvider Services
@@ -99,7 +99,7 @@ namespace Orleans.Hosting.Internal
             Initialize();
 
             _applicationLifetime = _applicationServices.GetRequiredService<IApplicationLifetime>() as ApplicationLifetime;
-            //_hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
+            _hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
             //var diagnosticSource = _applicationServices.GetRequiredService<DiagnosticSource>();
             //var httpContextFactory = _applicationServices.GetRequiredService<IHttpContextFactory>();
             Server.Start(new SiloHostingApplication(_application, _logger));
@@ -108,7 +108,7 @@ namespace Orleans.Hosting.Internal
             _applicationLifetime?.NotifyStarted();
 
             // Fire IHostedService.Start
-            //_hostedServiceExecutor.Start();
+            _hostedServiceExecutor.Start();
 
             _logger.Started();
         }
@@ -150,12 +150,6 @@ namespace Orleans.Hosting.Internal
 
             configure(builder);
 
-            // TODO better lifecycle
-            var hostedServices = builder.ApplicationServices.GetServices<IHostedService>().ToList();
-            Console.WriteLine("Information about configured hosted services:");
-            Console.WriteLine(string.Join(Environment.NewLine, hostedServices.Select(x => x.ToString())));
-            Task.WaitAll(hostedServices.Select(x => x.Start()).ToArray());
-
             // TODO
             return new Silo();
         }
@@ -176,7 +170,7 @@ namespace Orleans.Hosting.Internal
             _applicationLifetime?.StopApplication();
 
             // Fire the IHostedService.Stop
-            //_hostedServiceExecutor?.Stop();
+            _hostedServiceExecutor?.Stop();
 
             (_hostingServiceProvider as IDisposable)?.Dispose();
             (_applicationServices as IDisposable)?.Dispose();
