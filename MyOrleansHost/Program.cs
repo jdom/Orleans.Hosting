@@ -10,6 +10,7 @@ namespace MyOrleansHost
         public static void Main(string[] args)
         {
             var host = new SiloHostBuilder()
+                .UseSetting("environment", "Development")
                 //.UseNetworkOptions(options => 
                 //{
                 //    // there will be extension methods for common scenarios such as localhost silo, azure cloud services config, etc
