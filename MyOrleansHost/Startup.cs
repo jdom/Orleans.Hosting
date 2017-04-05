@@ -8,6 +8,7 @@ using Orleans.Hosting;
 using Orleans.Hosting.Membership;
 using System.Net;
 using System;
+using MyOrleansApp;
 
 namespace MyOrleansHost
 {
@@ -40,6 +41,12 @@ namespace MyOrleansHost
             {
                 options.ResponseTimeout = TimeSpan.FromSeconds(45);
                 options.ResendOnTimeout = true;
+            });
+
+            services.Configure<ActivationCollectionOptions>(options =>
+            {
+                options.DefaultCollectionAgeLimit = TimeSpan.FromMinutes(30);
+                options.AddOverride<PlayerGrain>(TimeSpan.FromHours(3));
             });
 
             services.ConfigureOrleansDefaultOptions(Configuration.GetSection("DefaultOptions"));
