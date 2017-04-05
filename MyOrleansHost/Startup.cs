@@ -43,6 +43,13 @@ namespace MyOrleansHost
                 options.ResendOnTimeout = true;
             });
 
+            services.Configure<MembershipOracleOptions>(options =>
+            {
+                options.MaxJoinAttemptTime = TimeSpan.FromMinutes(3);
+                options.ProbeTimeout = TimeSpan.FromSeconds(15);
+                options.NumMissedProbesLimit = 3;
+            });
+
             services.Configure<ActivationCollectionOptions>(options =>
             {
                 options.DefaultCollectionAgeLimit = TimeSpan.FromMinutes(30);
