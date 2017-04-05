@@ -7,6 +7,7 @@ using Serilog;
 using Orleans.Hosting;
 using Orleans.Hosting.Membership;
 using System.Net;
+using System;
 
 namespace MyOrleansHost
 {
@@ -27,11 +28,18 @@ namespace MyOrleansHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // this can either be configured here, or in the Main method by using UseNetworkOptions. Here it's useful if it comes from declarative config
+            // NetworkOptions can either be configured here, or in the Main method by using UseNetworkOptions. Here it's useful if it comes from declarative config
             services.Configure<NetworkOptions>(options =>
             {
                 options.Endpoint = new IPEndPoint(NetworkOptions.ResolveIPAddress(), 22223);
                 options.ProxyGatewayEndpoint = new IPEndPoint(options.Endpoint.Address, 44445);
+                options.OpenConnectionTimeout = TimeSpan.FromSeconds(10);
+            });
+
+            services.Configure<MessagingOptions>(options =>
+            {
+                options.ResponseTimeout = TimeSpan.FromSeconds(45);
+                options.ResendOnTimeout = true;
             });
 
             services.ConfigureOrleansDefaultOptions(Configuration.GetSection("DefaultOptions"));
