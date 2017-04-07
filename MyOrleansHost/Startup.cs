@@ -16,6 +16,7 @@ namespace MyOrleansHost
     {
         public Startup(IHostingEnvironment env)
         {
+            // optionally set up a configuration that can bind values from several sources. Supports a ton of different configuration providers
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -26,7 +27,7 @@ namespace MyOrleansHost
 
         public IConfigurationRoot Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        // This method gets called by the runtime. Use this method to add services to the container or configure Options.
         public void ConfigureServices(IServiceCollection services)
         {
             // NetworkOptions can either be configured here, or in the Main method by using UseNetworkOptions. Here it's useful if it comes from declarative config
@@ -56,6 +57,9 @@ namespace MyOrleansHost
                 options.AddOverride<PlayerGrain>(TimeSpan.FromHours(3));
             });
 
+            // Optionally specify default options so that individual providers can just fall back to using these values.
+            // For example, if DataConnectionString is defined in those options, they will be automatically used by
+            // the membership provider, storage providers, etc (unless explicitly overwritten when configuring them).
             services.ConfigureOrleansDefaultOptions(Configuration.GetSection("DefaultOptions"));
 
             // can use default options (similar to how it works in the published release with SystemStore).
@@ -114,6 +118,7 @@ namespace MyOrleansHost
 
                 storageBuilder.AddAzureBlob("AzureBlobUsingExternal", Configuration.GetSection("StorageProviders:AzureBlob1"));
 
+                // Not sure about allowing pre-materialized options
                 storageBuilder.AddAzureBlob("AzureBlobMaterializedOptions",
                     new AzureBlobStorageOptions { ConnectionString = "set directly when configuring, without fallbacks" });
 
@@ -129,17 +134,25 @@ namespace MyOrleansHost
 
             app.ConfigureStreamProviders(streamBuilder =>
             {
-                streamBuilder.AddEventHub("EventHub", new EventHubStreamOptions
-                {
-                    CacheSizeMb = 100,
-                    CheckpointerOptions = new CheckpointerOptions
-                    {
-                        ConnectionString = Configuration.GetConnectionString("EventHub"),
-                        TableName = "mycheckpoints"
-                    }
-                });
+                streamBuilder.AddEventHub("EventHub", optionsBuilder =>
+                    optionsBuilder.Configure(options =>
+                        {
+                            options.CacheSizeMb = 100;
+                            options.CheckpointerOptions.ConnectionString = Configuration.GetConnectionString("EventHub");
+                            options.CheckpointerOptions.TableName = "mycheckpoints";
+                        }));
 
-                streamBuilder.AddEventHub("EventHubConfig1", options => options.Configure(Configuration.GetSection("StreamProviders:EventHubConfig1")));
+                streamBuilder.AddEventHub("EventHubConfig1", optionsBuilder => optionsBuilder.Configure(Configuration.GetSection("StreamProviders:EventHubConfig1")));
+
+                //streamBuilder.AddEventHub("EventHub", new EventHubStreamOptions
+                //{
+                //    CacheSizeMb = 100,
+                //    CheckpointerOptions = new CheckpointerOptions
+                //    {
+                //        ConnectionString = Configuration.GetConnectionString("EventHub"),
+                //        TableName = "mycheckpoints"
+                //    }
+                //});
 
                 // storageBuilder.AddSms("Sms");
             });

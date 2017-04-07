@@ -26,8 +26,10 @@ namespace MyOrleansHost
 
         //public static void Main(string[] args)
         //{
+        //    var clusterConfiguration = new ClusterConfiguration();
+        //    // call clusterConfiguration.Load("OrleansConfiguration.xml") or configure programmatically
         //    var host = new SiloHostBuilder()
-        //        .UseLegacyConfiguration(new ClusterConfiguration())
+        //        .UseLegacyConfiguration(clusterConfiguration)
         //        .Build();
 
         //    host.Run();

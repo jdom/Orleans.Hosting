@@ -12,12 +12,12 @@ namespace Orleans.Hosting
     public class AzureBlobStorageProvider : IStorageProvider
     {
         private string name;
-        private string connectionString;
+        private AzureBlobStorageOptions options;
 
-        public AzureBlobStorageProvider(string name, IOptions<AzureBlobStorageOptions> options, IApplicationLifetime appLifetime /* can inject services via DI */)
+        public AzureBlobStorageProvider(string name, IOptions<AzureBlobStorageOptions> optionsAccessor, IApplicationLifetime appLifetime /* can inject services via DI */)
         {
             this.name = name;
-            this.connectionString = options.Value.ConnectionString;
+            this.options = optionsAccessor.Value;
 
             // BTW, Jason is working to create a fine-grained application lifecycle abstraction. This is just the one from AspNetCore right now.
         }
@@ -34,7 +34,7 @@ namespace Orleans.Hosting
 
         public override string ToString()
         {
-            return $"{this.GetType().Name}: {this.name} - {this.connectionString}";
+            return $"{this.GetType().Name}: {this.name} - {this.options.ConnectionString}";
         }
     }
 
