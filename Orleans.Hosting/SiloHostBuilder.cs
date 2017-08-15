@@ -206,7 +206,7 @@ namespace Orleans.Hosting
             //This is required to add ILogger of T.
             services.AddLogging();
 
-            var listener = new DiagnosticListener("Microsoft.AspNetCore");
+            var listener = new DiagnosticListener("Microsoft.Orleans");
             services.AddSingleton<DiagnosticListener>(listener);
             services.AddSingleton<DiagnosticSource>(listener);
 
