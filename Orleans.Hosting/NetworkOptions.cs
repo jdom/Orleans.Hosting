@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Orleans.Hosting
 {
@@ -95,8 +97,14 @@ namespace Orleans.Hosting
         {
         }
 
-        public void Start<TContext>(IHttpApplication<TContext> application)
+        public Task StartAsync<TContext>(IHttpApplication<TContext> application, CancellationToken cancellationToken)
         {
+            return Task.CompletedTask;
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

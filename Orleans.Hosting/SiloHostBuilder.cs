@@ -15,7 +15,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ObjectPool;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.AspNetCore.Hosting;
 using Orleans.Hosting.Internal;
 using System.Linq;
@@ -113,6 +112,16 @@ namespace Orleans.Hosting
             return this;
         }
 
+        public IWebHostBuilder ConfigureAppConfiguration(Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IWebHostBuilder ConfigureServices(Action<WebHostBuilderContext, IServiceCollection> configureServices)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Adds a delegate for configuring the provided <see cref="ILoggerFactory"/>. This may be called multiple times.
         /// </summary>
@@ -177,9 +186,8 @@ namespace Orleans.Hosting
         {
             _options = new WebHostOptions(_config);
 
-            var appEnvironment = PlatformServices.Default.Application;
-            var contentRootPath = ResolveContentRootPath(_options.ContentRootPath, appEnvironment.ApplicationBasePath);
-            var applicationName = _options.ApplicationName ?? appEnvironment.ApplicationName;
+            var contentRootPath = ResolveContentRootPath(_options.ContentRootPath, AppContext.BaseDirectory);
+            var applicationName = _options.ApplicationName ?? Assembly.GetEntryAssembly().GetName().Name;
 
             // Initialize the hosting environment
             _hostingEnvironment.Initialize(applicationName, contentRootPath, _options);

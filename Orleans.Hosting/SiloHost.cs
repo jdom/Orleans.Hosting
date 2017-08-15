@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Builder;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting.Server;
+using System.Threading;
 
 namespace Orleans.Hosting.Internal
 {
@@ -94,6 +95,11 @@ namespace Orleans.Hosting.Internal
 
         public virtual void Start()
         {
+
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
             _logger = _applicationServices.GetRequiredService<ILogger<SiloHost>>();
 
             Initialize();
@@ -102,7 +108,7 @@ namespace Orleans.Hosting.Internal
             _hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
             //var diagnosticSource = _applicationServices.GetRequiredService<DiagnosticSource>();
             //var httpContextFactory = _applicationServices.GetRequiredService<IHttpContextFactory>();
-            Server.Start(new SiloHostingApplication(_application, _logger));
+            await Server.StartAsync(new SiloHostingApplication(_application, _logger), cancellationToken);
 
             // Fire IApplicationLifetime.Started
             _applicationLifetime?.NotifyStarted();
@@ -111,6 +117,12 @@ namespace Orleans.Hosting.Internal
             _hostedServiceExecutor.Start();
 
             _logger.Started();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            this.Dispose();
+            return Task.CompletedTask;
         }
 
         private void EnsureApplicationServices()

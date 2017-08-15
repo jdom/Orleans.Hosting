@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Orleans.Hosting
 {
@@ -76,7 +77,7 @@ namespace Orleans.Hosting
         }
 
         //TODO: optimize
-        public TOptions Value => new OptionsManager<TOptions>(list).Value;
+        public TOptions Value => new OptionsManager<TOptions>(new OptionsFactory<TOptions>(list, Enumerable.Empty<IPostConfigureOptions<TOptions>>())).Value;
 
         public IConfigureOptionsBuilder<TOptions> Configure(IConfigureOptions<TOptions> configureOptions)
         {
